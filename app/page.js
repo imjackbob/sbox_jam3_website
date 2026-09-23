@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getStats, normalizeIdent } from "../lib/voting.mjs";
+import GameRatings from "./game-ratings";
 
 const EXAMPLE = "sunless.risk_of_observation";
 const number = (value) => value.toLocaleString("en-US");
@@ -67,9 +68,11 @@ export default function Home() {
   const [error, setError] = useState("");
   const [inputError, setInputError] = useState("");
   const [allEntries, setAllEntries] = useState(false);
+  const [ratingsRefresh, setRatingsRefresh] = useState(0);
   const request = useRef(null);
 
   const refresh = useCallback(async () => {
+    setRatingsRefresh((value) => value + 1);
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -498,6 +501,9 @@ export default function Home() {
           </section>
         )}
 
+        {ident && (
+          <GameRatings key={ident} ident={ident} refreshKey={ratingsRefresh} />
+        )}
         {category && (
           <div className="board-layout">
             <section className="leaderboard">

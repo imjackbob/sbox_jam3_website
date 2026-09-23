@@ -46,6 +46,16 @@ The server route validates the upstream response, times out after 10 seconds, an
 
 ## Project structure
 
+### Game ratings
+
+Selecting a game also fetches its overall thumbs-up/down totals and review breakdown from `https://public.facepunch.com/sbox/package/get/2/{ident}` through `/api/ratings?ident=...`. Ratings load independently of the jam tally; a missing package or upstream failure is shown as unavailable, not as zero votes. Refresh updates both sources. Switching games cancels the previous ratings request.
+
+Thumbs-up/down (`VotesUp`/`VotesDown`) are separate from written review counts (`ReviewStats`). The review score matches [Facepunch's implementation](https://github.com/Facepunch/sbox-public/blob/master/engine/Sandbox.Services/Api/Models/PackageReviewStats.cs): `(positive × 100 + has-potential × 50) / total reviews`. The panel also shows each review type's count and percentage. No reviews displays “No reviews yet” with no percentage; missing review data is labeled separately. The API omits zero-valued count fields. Only the selected game's ratings are fetched, rather than requesting every package in the leaderboard.
+
+- `app/game-ratings.js` — independent ratings panel with loading, retry, and empty states.
+- `app/api/ratings/route.js` — validated, fixed-origin package API proxy.
+- `lib/ratings.mjs` — thumbs and review normalization and score calculation.
+
 - `app/page.js` — lookup, results, leaderboard, category selector, and optional feature-detected WebMCP lookup tool.
 - `app/globals.css` — responsive navy-and-blue styling with the Sen typeface (Google Fonts, with a local sans-serif fallback).
 - `app/api/voting/route.js` — same-origin server proxy for Facepunch's public voting endpoint.
